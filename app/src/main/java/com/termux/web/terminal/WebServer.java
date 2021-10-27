@@ -68,6 +68,14 @@ public class WebServer {
                 response.end();
             }
         });
+
+        httpServer.get("/jq", new HttpServerRequestCallback() {
+            @Override
+            public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
+                response.send("application/javascript; charset=utf-8", createFile("jquery.js"));
+                response.end();
+            }
+        });
         httpServer.get("/host", new HttpServerRequestCallback() {
             @Override
             public void onRequest(AsyncHttpServerRequest request, AsyncHttpServerResponse response) {
