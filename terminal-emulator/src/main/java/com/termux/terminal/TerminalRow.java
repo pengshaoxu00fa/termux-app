@@ -244,4 +244,15 @@ public final class TerminalRow {
         return mStyle[column];
     }
 
+    @Override
+    public String toString() {
+        return "TerminalRow{" +
+            "mColumns=" + mColumns +
+            ", mText=" + new String(mText) +
+            ", mSpaceUsed=" + mSpaceUsed +
+            ", mLineWrap=" + mLineWrap +
+            ", mStyle=" + Arrays.toString(mStyle) +
+            ", mHasNonOneWidthOrSurrogateChars=" + mHasNonOneWidthOrSurrogateChars +
+            '}';
+    }
 }
