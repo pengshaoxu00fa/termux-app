@@ -5,6 +5,7 @@ import android.app.Application;
 import com.termux.shared.crash.TermuxCrashUtils;
 import com.termux.shared.settings.preferences.TermuxAppSharedPreferences;
 import com.termux.shared.logger.Logger;
+import com.termux.web.terminal.WebServer;
 
 
 public class TermuxApplication extends Application {
@@ -16,6 +17,7 @@ public class TermuxApplication extends Application {
 
         // Set log level for the app
         setLogLevel();
+        WebServer.getInstance().startup(this);
     }
 
     private void setLogLevel() {

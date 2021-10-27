@@ -1,199 +1,224 @@
 <!--http://code.jquery.com/jquery-1.10.2.min.js-->
 <!--https://www.shangmayuan.com/a/fff94da4eb5a4e53b424538e.html-->
 <html>
+
 <head>
+
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta content="max-age=30" http-equiv="Cache-Control" />
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <!-- <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache" content="no-cache"> -->
     <title>命令行控制台</title>
     <style>
-            table {
-                border-collapse: separate;
-                border-spacing: 0;
-                border-left: 1px solid #e9e9e9;
-                border-top: 1px solid #e9e9e9;
-            }
-            th {
-                border-bottom: 1px solid #e9e9e9;
-                border-right: 1px solid #e9e9e9;
-            }
-            td {
-                text-align: center;
-                border-right: 1px solid #e9e9e9;
-                border-bottom: 1px solid #e9e9e9;
-            }
-            #main{
-                width:98%;
-                height:98%;
-                overflow:auto;
-                margin:0px;
-                padding:10px;
-                background-color:black;
-                color:white;
-            }
-            .resp{
-                margin:5px 0px;
-            }
-            .resa{
-                margin:5px 0px;
-                display:inline-block;
-            }
-            .cmdp{
-                color:white;
-                margin:5px 0px;
-                width:80%;
-                background-color:black;
-                border:0px;
-                display:inline-block;
-                outline:none;
-            }
-        </style>
+        table {
+            border-collapse: separate;
+            border-spacing: 0;
+            border-left: 1px solid #e9e9e9;
+            border-top: 1px solid #e9e9e9;
+        }
+
+        th {
+            border-bottom: 1px solid #e9e9e9;
+            border-right: 1px solid #e9e9e9;
+        }
+
+        td {
+            text-align: center;
+            border-right: 1px solid #e9e9e9;
+            border-bottom: 1px solid #e9e9e9;
+        }
+
+        #main {
+            width: 98%;
+            height: 98%;
+            overflow: auto;
+            margin: 0px;
+            padding: 10px;
+            background-color: black;
+            color: white;
+        }
+
+        .resp {
+            margin: 5px 0px;
+        }
+
+        .resa {
+            margin: 5px 0px;
+            display: inline-block;
+        }
+
+        .cmdp {
+            color: white;
+            margin: 5px 0px;
+            width: 80%;
+            background-color: black;
+            border: 0px;
+            display: inline-block;
+            outline: none;
+        }
+    </style>
 </head>
-<body  id="main" onclick="activeCMD(event)">
-<div id="result">
-    <p class="resp">
-        【XXX系统】命令行控制台  --当前用户：$username
-    </p>
-    <p class="resp">
-        用法提示：<br/>
-        &emsp;&emsp;1.输入“命令 参数1 参数2 ……”回车<br/>
-        &emsp;&emsp;2.鼠标选中文本便可复制<br/>
-        &emsp;&emsp;3.输入空命令或“命令 ?”获取帮助<br/>
-        &emsp;&emsp;4.按向上、向下键切换用过的命令,"cls"清屏
-    </p>
-</div>
-<div>
-    <a id="host" class="resa" >
-        $host:>
-    </a>
-    <input id="command" type="text" class="cmdp" value=""/>
-    <input id="copyIn" type="hidden" />
-</div>
-<script>
-            var lastCMD=[];
-            var last=1;
-            function activeCMD(e)
-            {
-                if(e.target.id=="main")
-                {
-                    setFocus("command");
-                }
-            }
-            document.onmouseup = document.ondbclick= function(){
-                var txt;
-                if(document.selection){
-                    txt = document.selection.createRange().text
-                }else{
-                    txt = window.getSelection()+'';
-                }
-                if(txt){
-                    copyIn.value=txt;
-                    copyIn.select();
-                    document.execCommand('Copy');
-                }
-            }
-            $('#command').bind('keydown',function(event){
-                if(event.keyCode == "13")
-                {
-                    var p=$('<p class="resp">');
-                    var value=$('#command').val();
-                    p.text('$host:>'+value);
-                    $("#result").append(p);
-                    $('#command').val("");
-                    if(value.toLowerCase()=="cls")
-                    {
-                        $("#result").empty();
-                        return false;
+
+<body id="main" onclick="activeCMD(event)">
+    <div id="result">
+        <p class="resp">
+            【XXX系统】命令行控制台 --当前用户：$username
+        </p>
+        <p class="resp">
+            用法提示：<br />
+            &emsp;&emsp;1.输入“命令 参数1 参数2 ……”回车<br />
+            &emsp;&emsp;2.鼠标选中文本便可复制<br />
+            &emsp;&emsp;3.输入空命令或“命令 ?”获取帮助<br />
+            &emsp;&emsp;4.按向上、向下键切换用过的命令,"cls"清屏
+        </p>
+    </div>
+    <div>
+        <a id="host" class="resa">
+            $host:>
+        </a>
+        <input id="command" type="text" class="cmdp" value="" />
+        <input id="copyIn" type="hidden" />
+    </div>
+    <script>
+
+        var webSocket = null;
+        
+        window.onload = function() {
+            $.ajax({
+                url:"/host",
+                method:"get",
+                success:function(url) {
+                    console.log(url);
+
+                    webSocket = new WebSocket(url);
+                    webSocket.onopen = function() {
+                        console.log("成功！");
                     }
-                    if(lastCMD.length==0 || lastCMD[0]!=value)
-                    {
-                        lastCMD.unshift(value);
-                        last=0;
+                    webSocket.onerror = function() {
+                        console.log("失败");
+                        webSocket = null;
                     }
-                    var cmd=value.split(" ");
-                    var resp=sendCMD(cmd);
-                    p=$('<p class="resp">');
-                    p.html(resp);
-                    $("#result").append(p);
-                }else if(event.keyCode == "38"){
-                    if(last<=lastCMD.length-1)
-                    {
-                        $('#command').val(lastCMD[last]);
-                        last++;
+                    webSocket.onclose = function() {
+                        console.log("close");
+                        webSocket = null;
                     }
-                    setTimeout('setFocus("command");',300);
-                }else if(event.keyCode == "40"){
-                    if(last>0)
-                    {
-                        last--;
-                        $('#command').val(lastCMD[last]);
+                    webSocket.onmessage = function(msg) {
+                        console.log(msg.data);
+                        webSocket.send(msg.data);
                     }
                 }
             });
-            var setFocus=function(id){
-                var t=$("#"+id).val();
-                $("#"+id).val("").focus().val(t);
+        };
+        var lastCMD = [];
+        var last = 1;
+        function activeCMD(e) {
+            if (e.target.id == "main") {
+                setFocus("command");
             }
-            function sendCMD(cmd)
-            {
-                var htmlobj=$.ajax({url:"CMDAjax.php",type:"POST",async:false,data:{"type":cmd[0].toLowerCase(),"data":JSON.stringify(cmd)}});
-                var data=GetJSON(htmlobj.responseText);
-                if(data.stateOK=='OK')
-                {
-                    data=data.data;
-                    if(data.url!=undefined)
-                    {
-                        var htmlobj=$.ajax({url:data.url,type:data.method,async:false,data:data.data});
-                        return htmlobj.responseText;
-                    }
-                    if(data.type!=undefined)
-                    {
-                        if(data.type=="table")
-                        {
-                            return makeTable(data.dataHead,data.dataRow);
-                        }
-                    }
-                    return data;
-                }else{
-                    return "无正确响应";
+        }
+        document.onmouseup = document.ondbclick = function () {
+            var txt;
+            if (document.selection) {
+                txt = document.selection.createRange().text
+            } else {
+                txt = window.getSelection() + '';
+            }
+            if (txt) {
+                copyIn.value = txt;
+                copyIn.select();
+                document.execCommand('Copy');
+            }
+        }
+        $('#command').bind('keydown', function (event) {
+            if (event.keyCode == "13") {
+                var p = $('<p class="resp">');
+                var value = $('#command').val();
+                p.text('$host:>' + value);
+                $("#result").append(p);
+                $('#command').val("");
+                if (value.toLowerCase() == "cls") {
+                    $("#result").empty();
+                    return false;
+                }
+                if (lastCMD.length == 0 || lastCMD[0] != value) {
+                    lastCMD.unshift(value);
+                    last = 0;
+                }
+                var cmd = value.split(" ");
+                var resp = sendCMD(cmd);
+                p = $('<p class="resp">');
+                p.html(resp);
+                $("#result").append(p);
+            } else if (event.keyCode == "38") {
+                if (last <= lastCMD.length - 1) {
+                    $('#command').val(lastCMD[last]);
+                    last++;
+                }
+                setTimeout('setFocus("command");', 300);
+            } else if (event.keyCode == "40") {
+                if (last > 0) {
+                    last--;
+                    $('#command').val(lastCMD[last]);
                 }
             }
-            function makeTable(dataHead,dataRow)
-            {
-                if(typeof(dataHead)!="object" || typeof(dataRow)!="object")
-                    return false;
-                var table=$('<table>');
-                var tr=$('<tr>');
-                for(var i=0;i<dataHead.length;i++)
-                {
-                    var th=$('<th>');
-                    th.html(dataHead[i]);
-                    tr.append(th);
+        });
+        var setFocus = function (id) {
+            var t = $("#" + id).val();
+            $("#" + id).val("").focus().val(t);
+        }
+        function sendCMD(cmd) {
+            var htmlobj = $.ajax({ url: "CMDAjax.php", type: "POST", async: false, data: { "type": cmd[0].toLowerCase(), "data": JSON.stringify(cmd) } });
+            var data = GetJSON(htmlobj.responseText);
+            if (data.stateOK == 'OK') {
+                data = data.data;
+                if (data.url != undefined) {
+                    var htmlobj = $.ajax({ url: data.url, type: data.method, async: false, data: data.data });
+                    return htmlobj.responseText;
+                }
+                if (data.type != undefined) {
+                    if (data.type == "table") {
+                        return makeTable(data.dataHead, data.dataRow);
+                    }
+                }
+                return data;
+            } else {
+                return "无正确响应";
+            }
+        }
+        function makeTable(dataHead, dataRow) {
+            if (typeof (dataHead) != "object" || typeof (dataRow) != "object")
+                return false;
+            var table = $('<table>');
+            var tr = $('<tr>');
+            for (var i = 0; i < dataHead.length; i++) {
+                var th = $('<th>');
+                th.html(dataHead[i]);
+                tr.append(th);
+            }
+            table.append(tr);
+            for (var i = 0; i < dataRow.length; i++) {
+                tr = $('<tr>');
+                for (var j = 0; j < dataRow[i].length; j++) {
+                    var td = $("<td>");
+                    td.html(dataRow[i][j]);
+                    tr.append(td);
                 }
                 table.append(tr);
-                for(var i=0;i<dataRow.length;i++)
-                {
-                    tr=$('<tr>');
-                    for(var j=0;j<dataRow[i].length;j++)
-                    {
-                        var td=$("<td>");
-                        td.html(dataRow[i][j]);
-                        tr.append(td);
-                    }
-                    table.append(tr);
-                }
-                return table;
             }
-            function GetJSON(string)
-            {
-                if(string.indexOf("stateOK")>=0)
-                {
-                    var res=eval("("+string+")");
-                    return res;
-                }else{
-                    return {stateOK:"NO",data:string,msg:"通信不正常"};
-                }
+            return table;
+        }
+        function GetJSON(string) {
+            if (string.indexOf("stateOK") >= 0) {
+                var res = eval("(" + string + ")");
+                return res;
+            } else {
+                return { stateOK: "NO", data: string, msg: "通信不正常" };
             }
-        </script>
+        }
+    </script>
 </body>
+
 </html>
