@@ -56,6 +56,7 @@ import com.termux.terminal.TerminalSessionClient;
 import com.termux.app.utils.CrashUtils;
 import com.termux.view.TerminalView;
 import com.termux.view.TerminalViewClient;
+import com.termux.web.terminal.WebServer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -276,7 +277,9 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
     @Override
     public void onResume() {
         super.onResume();
-
+        if (getTerminalView() != null) {
+            WebServer.getInstance().setSession(getTerminalView().mTermSession);
+        }
         Logger.logVerbose(LOG_TAG, "onResume");
 
         if (mIsInvalidState) return;
@@ -458,6 +461,7 @@ public final class TermuxActivity extends Activity implements ServiceConnection 
 
     private void setTermuxSessionsListView() {
         ListView termuxSessionsListView = findViewById(R.id.terminal_sessions_list);
+
         mTermuxSessionListViewController = new TermuxSessionsListViewController(this, mTermuxService.getTermuxSessions());
         termuxSessionsListView.setAdapter(mTermuxSessionListViewController);
         termuxSessionsListView.setOnItemClickListener(mTermuxSessionListViewController);

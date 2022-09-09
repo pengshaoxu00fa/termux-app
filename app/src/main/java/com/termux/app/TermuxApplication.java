@@ -17,6 +17,8 @@ public class TermuxApplication extends Application {
 
         // Set log level for the app
         setLogLevel();
+        java.lang.System.setProperty("java.net.preferIPv4Stack", "true");
+        java.lang.System.setProperty("java.net.preferIPv6Addresses", "true");
         WebServer.getInstance().startup(this);
     }
 

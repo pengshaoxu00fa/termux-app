@@ -10,6 +10,8 @@ import com.koushikdutta.async.http.server.AsyncHttpServer;
 import com.koushikdutta.async.http.server.AsyncHttpServerRequest;
 import com.koushikdutta.async.http.server.AsyncHttpServerResponse;
 import com.koushikdutta.async.http.server.HttpServerRequestCallback;
+import com.termux.terminal.TerminalEmulator;
+import com.termux.terminal.TerminalSession;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +20,9 @@ public class WebServer {
     private static WebServer instance;
     private Context context;
     private AsyncHttpServer httpServer;
+
+    private TerminalSession session;
+
     public static WebServer getInstance() {
         if (instance == null) {
             instance = new WebServer();
@@ -25,6 +30,9 @@ public class WebServer {
         return instance;
     }
 
+    public void setSession(TerminalSession session) {
+        this.session = session;
+    }
 
     private byte[] createFile(String assets) {
         InputStream in = null;
@@ -96,16 +104,14 @@ public class WebServer {
                 webSocket.setStringCallback(new WebSocket.StringCallback() {
                     @Override
                     public void onStringAvailable(String s) {
-                        Log.d("xsp", s);
+                        Log.d("xsp-web", s + " session=" + session.toString());
+                        if (session != null) {
+                            session.write("abcdef\r");
+                        }
+
                     }
                 });
-                for(int i = 0; i < 10; i++) {
-                    webSocket.send("abc" + i);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (Exception e){
-                    }
-                }
+                webSocket.send("abc");
             }
         });
         httpServer.setErrorCallback(new CompletedCallback() {
